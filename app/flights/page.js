@@ -35,6 +35,12 @@ const darkTheme = createTheme({
 });
 
 export default function FlightSearch() {
+    const [origin, setOrigin] = useState('DEL');
+    const [destination, setDestination] = useState('BOM');
+    const [departureDate, setDepartureDate] = useState(
+      new Date().toISOString().split('T')[0]
+    );
+    
     const [flights, setFlights] = useState([
         {
           id: 'AI-101',
@@ -87,6 +93,12 @@ export default function FlightSearch() {
           price: 85,
         },
   ]);
+  
+  const handleSwap = () => {
+    const temp = origin;
+    setOrigin(destination);
+    setDestination(temp);
+};
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
@@ -98,7 +110,15 @@ export default function FlightSearch() {
         }}
       >
         <Container maxWidth="lg">
-          <SearchForm/>
+          <SearchForm
+            origin={origin}
+            destination={destination}
+            departureDate={departureDate}
+            onOriginChange={setOrigin}
+            onDestinationChange={setDestination}
+            onDepartureDateChange={setDepartureDate}
+            onSwap={handleSwap}
+          />
 
           <FlightList flights={flights} />
         </Container>
