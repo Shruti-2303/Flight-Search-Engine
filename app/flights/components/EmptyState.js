@@ -8,6 +8,7 @@ export default function EmptyState() {
     <Paper
       elevation={0}
       sx={{
+        width: '100%',
         p: 6,
         textAlign: 'center',
         borderRadius: 2,

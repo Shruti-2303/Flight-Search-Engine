@@ -4,7 +4,7 @@ import { Box, Skeleton } from '@mui/material';
 
 export default function FlightSkeleton() {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
       {[1, 2, 3].map((item) => (
         <Skeleton
           key={item}

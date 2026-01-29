@@ -1,9 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, Container, ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import {
+  Box,
+  Container,
+  Grid,
+  Paper,
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+} from '@mui/material';
 import SearchForm from './components/SearchForm';
 import FlightList from './components/FlightList';
+import PriceGraph from './components/PriceGraph';
 import { searchFlights, transformFlightOffer } from '@/lib/amadeus';
 
 const darkTheme = createTheme({
@@ -88,20 +97,34 @@ export default function FlightSearch() {
         sx={{
           minHeight: '100vh',
           backgroundColor: 'background.default',
-          py: 4,
         }}
       >
-        <Container maxWidth="lg">
-          <SearchForm
-            origin={origin}
-            destination={destination}
-            departureDate={departureDate}
-            onOriginChange={setOrigin}
-            onDestinationChange={setDestination}
-            onDepartureDateChange={setDepartureDate}
-            onSwap={handleSwap}
-          />
+        {/* Search Form at Top */}
+        <Paper
+          elevation={0}
+          sx={{
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: 0,
+            mb: 3,
+          }}
+        >
+          <Container maxWidth="lg">
+            <Box py={3}>
+              <SearchForm
+                origin={origin}
+                destination={destination}
+                departureDate={departureDate}
+                onOriginChange={setOrigin}
+                onDestinationChange={setDestination}
+                onDepartureDateChange={setDepartureDate}
+                onSwap={handleSwap}
+              />
+            </Box>
+          </Container>
+        </Paper>
 
+        {/* Main Content: Flight list (left) + Price graph (right) */}
+        <Container maxWidth="lg" sx={{ width: '100%', px: { xs: 2, sm: 3 } }}>
           {error && (
             <Box
               sx={{
@@ -116,7 +139,22 @@ export default function FlightSearch() {
             </Box>
           )}
 
-          <FlightList flights={flights} loading={loading} />
+          <Grid container spacing={3} sx={{ width: '100%' }}>
+            <Grid item size={{ xs: 12, md: 7 }} sx={{ minWidth: 0 }}>
+              <FlightList flights={flights} loading={loading} />
+            </Grid>
+            <Grid item size={{ xs: 12, md: 5 }} sx={{ minWidth: 0 }}>
+              <Box
+                sx={{
+                  width: '100%',
+                  position: { md: 'sticky' },
+                  top: { md: 24 },
+                }}
+              >
+                <PriceGraph flights={flights} loading={loading}/>
+              </Box>
+            </Grid>
+          </Grid>
         </Container>
       </Box>
     </ThemeProvider>

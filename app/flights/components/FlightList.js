@@ -21,7 +21,7 @@ export default function FlightList({ flights = [], loading = false }) {
   if (!loading && flights.length === 0) return <EmptyState />;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
       {flights.map((flight) => (
         <Paper
           key={flight.id}
