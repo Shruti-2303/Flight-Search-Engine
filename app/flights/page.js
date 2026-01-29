@@ -36,8 +36,8 @@ const darkTheme = createTheme({
 });
 
 export default function FlightSearch() {
-  const [origin, setOrigin] = useState('DEL');
-  const [destination, setDestination] = useState('BOM');
+  const [origin, setOrigin] = useState('');
+  const [destination, setDestination] = useState('');
   const [departureDate, setDepartureDate] = useState(
     new Date().toISOString().split('T')[0]
   );
@@ -48,7 +48,8 @@ export default function FlightSearch() {
   useEffect(() => {
     const handleSearch = async () => {
       if (!origin || !destination || !departureDate) {
-        setError('Please fill in all fields');
+        setFlights([]);
+        setError(null);
         return;
       }
 
