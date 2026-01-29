@@ -1,32 +1,24 @@
 'use client';
 
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography, Chip } from '@mui/material';
 import { Flight } from '@mui/icons-material';
+import { formatTime } from '@/lib/amadeus';
+import FlightSkeleton from './FlightSkeleton';
+import EmptyState from './EmptyState';
+
+function getCurrencySymbol(currency) {
+  const symbols = {
+    EUR: '€',
+    USD: '$',
+    INR: '₹',
+    GBP: '£',
+  };
+  return symbols[currency] || currency;
+}
 
 export default function FlightList({ flights = [], loading = false }) {
-  if (flights.length === 0 && !loading) {
-    return (
-      <Paper
-        elevation={0}
-        sx={{
-          p: 6,
-          textAlign: 'center',
-          borderRadius: 2,
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-        }}
-      >
-        <Flight
-          sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }}
-        />
-        <Typography variant="h6" color="text.secondary">
-          No flights found
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Try searching for a different route
-        </Typography>
-      </Paper>
-    );
-  }
+  if (loading) return <FlightSkeleton />;
+  if (!loading && flights.length === 0) return <EmptyState />;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -71,7 +63,7 @@ export default function FlightList({ flights = [], loading = false }) {
               >
                 <Box>
                   <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                    {flight.departure_time.substring(0, 5)}
+                    {formatTime(flight.departureTime)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {flight.origin}
@@ -112,10 +104,23 @@ export default function FlightList({ flights = [], loading = false }) {
                       }}
                     />
                   </Box>
+                  {flight.isNonstop && (
+                    <Chip
+                      label="Nonstop"
+                      size="small"
+                      sx={{
+                        height: 20,
+                        fontSize: '0.7rem',
+                        mt: 0.5,
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        color: 'text.secondary',
+                      }}
+                    />
+                  )}
                 </Box>
                 <Box sx={{ textAlign: 'right' }}>
                   <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                    {flight.arrival_time.substring(0, 5)}
+                    {formatTime(flight.arrivalTime)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {flight.destination}
@@ -138,7 +143,7 @@ export default function FlightList({ flights = [], loading = false }) {
                   color: 'primary.main',
                 }}
               >
-                ${flight.price}
+                {getCurrencySymbol(flight.currency)}{flight.price.toFixed(2)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 per person

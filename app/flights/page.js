@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Container, ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import SearchForm from './components/SearchForm';
 import FlightList from './components/FlightList';
+import { searchFlights, transformFlightOffer } from '@/lib/amadeus';
 
 const darkTheme = createTheme({
   palette: {
@@ -35,70 +36,50 @@ const darkTheme = createTheme({
 });
 
 export default function FlightSearch() {
-    const [origin, setOrigin] = useState('DEL');
-    const [destination, setDestination] = useState('BOM');
-    const [departureDate, setDepartureDate] = useState(
-      new Date().toISOString().split('T')[0]
-    );
-    const [loading, setLoading] = useState(false);
-    const [flights, setFlights] = useState([
-        {
-          id: 'AI-101',
-          airline: 'Air India',
-          origin: 'DEL',
-          destination: 'BOM',
-          departure_time: '06:30:00',
-          arrival_time: '08:45:00',
-          duration: '2h 15m',
-          price: 92,
-        },
-        {
-          id: '6E-234',
-          airline: 'IndiGo',
-          origin: 'DEL',
-          destination: 'BOM',
-          departure_time: '09:10:00',
-          arrival_time: '11:25:00',
-          duration: '2h 15m',
-          price: 88,
-        },
-        {
-          id: 'UK-815',
-          airline: 'Vistara',
-          origin: 'DEL',
-          destination: 'BOM',
-          departure_time: '13:40:00',
-          arrival_time: '15:50:00',
-          duration: '2h 10m',
-          price: 115,
-        },
-        {
-          id: 'SG-402',
-          airline: 'SpiceJet',
-          origin: 'DEL',
-          destination: 'BOM',
-          departure_time: '18:20:00',
-          arrival_time: '20:35:00',
-          duration: '2h 15m',
-          price: 79,
-        },
-        {
-          id: 'AI-987',
-          airline: 'Air India Express',
-          origin: 'DEL',
-          destination: 'BOM',
-          departure_time: '22:10:00',
-          arrival_time: '00:25:00',
-          duration: '2h 15m',
-          price: 85,
-        },
-  ]);
+  const [origin, setOrigin] = useState('DEL');
+  const [destination, setDestination] = useState('BOM');
+  const [departureDate, setDepartureDate] = useState(
+    new Date().toISOString().split('T')[0]
+  );
+  const [loading, setLoading] = useState(false);
+  const [flights, setFlights] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const handleSearch = async () => {
+      if (!origin || !destination || !departureDate) {
+        setError('Please fill in all fields');
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const { offers, dictionaries } = await searchFlights(origin, destination, departureDate);
+        const transformedFlights = offers
+          .map((offer) => transformFlightOffer(offer, dictionaries))
+          .filter((flight) => flight !== null);
+        
+        setFlights(transformedFlights);
+      } catch (err) {
+        console.error('Search error:', err);
+        setError('Failed to search flights. Please try again.');
+        setFlights([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    handleSearch();
+  }, [origin, destination, departureDate]);
 
   const handleSwap = () => {
     const temp = origin;
     setOrigin(destination);
     setDestination(temp);
-};
+  };
+
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
@@ -119,6 +100,20 @@ export default function FlightSearch() {
             onDepartureDateChange={setDepartureDate}
             onSwap={handleSwap}
           />
+
+          {error && (
+            <Box
+              sx={{
+                p: 2,
+                mb: 2,
+                borderRadius: 1,
+                backgroundColor: 'error.dark',
+                color: 'error.contrastText',
+              }}
+            >
+              {error}
+            </Box>
+          )}
 
           <FlightList flights={flights} loading={loading} />
         </Container>
