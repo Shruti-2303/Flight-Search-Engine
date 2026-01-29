@@ -3,8 +3,8 @@
 import { Box, Paper, Typography } from '@mui/material';
 import { Flight } from '@mui/icons-material';
 
-export default function FlightList({ flights = [] }) {
-  if (flights.length === 0) {
+export default function FlightList({ flights = [], loading = false }) {
+  if (flights.length === 0 && !loading) {
     return (
       <Paper
         elevation={0}

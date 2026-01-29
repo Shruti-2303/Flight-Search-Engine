@@ -40,7 +40,7 @@ export default function FlightSearch() {
     const [departureDate, setDepartureDate] = useState(
       new Date().toISOString().split('T')[0]
     );
-    
+    const [loading, setLoading] = useState(false);
     const [flights, setFlights] = useState([
         {
           id: 'AI-101',
@@ -93,7 +93,7 @@ export default function FlightSearch() {
           price: 85,
         },
   ]);
-  
+
   const handleSwap = () => {
     const temp = origin;
     setOrigin(destination);
@@ -120,7 +120,7 @@ export default function FlightSearch() {
             onSwap={handleSwap}
           />
 
-          <FlightList flights={flights} />
+          <FlightList flights={flights} loading={loading} />
         </Container>
       </Box>
     </ThemeProvider>
