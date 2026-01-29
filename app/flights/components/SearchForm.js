@@ -355,6 +355,9 @@ export default function SearchForm({
           onChange={(e) => onDepartureDateChange(e.target.value)}
           variant="outlined"
           sx={dateStyle}
+          inputProps={{
+            min: new Date().toISOString().split('T')[0],
+          }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
