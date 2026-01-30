@@ -57,31 +57,40 @@ const dateStyle = {
   },
 };
 
+
 const tripTypeSelectStyle = {
   minWidth: 140,
   '& .MuiOutlinedInput-root': {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    height: 56,
+    minHeight: 56,
     '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' },
     '&.Mui-focused': { backgroundColor: 'rgba(255, 255, 255, 0.08)' },
   },
 };
 
+// Match Origin/Destination border (MUI dark OutlinedInput: 0.23 default, 0.87 hover)
+const inputBorderColor = 'rgba(255, 255, 255, 0.23)';
+const inputBorderColorHover = 'rgba(255, 255, 255, 0.87)';
+
 const adultsTriggerSx = {
-  minWidth: 100,
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-  borderRadius: 2,
+  minWidth: 80,
+  height: 56,
+  minHeight: 56,
+  border: `1px solid ${inputBorderColor}`,
   backgroundColor: 'rgba(255, 255, 255, 0.05)',
   color: 'text.primary',
   textTransform: 'none',
-  py: 1.5,
+  py: 0,
   px: 2,
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: inputBorderColorHover,
   },
   '&.Mui-focused': {
     borderColor: 'primary.main',
-    backgroundColor: 'rgba(33, 150, 243, 0.08)',
+    borderWidth: '2px',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
 };
 
@@ -455,8 +464,8 @@ export default function SearchForm({
             sx={{
               color: 'text.primary',
               '& .MuiSelect-select': { py: 1.5 },
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.2)' },
-              '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: inputBorderColor },
+              '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: inputBorderColorHover },
             }}
           >
             <MenuItem value="oneWay">One way</MenuItem>
