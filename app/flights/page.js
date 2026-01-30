@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Container,
@@ -11,9 +11,29 @@ import {
   CssBaseline,
 } from '@mui/material';
 import SearchForm from './components/SearchForm';
+import FilterBar from './components/FilterBar';
 import FlightList from './components/FlightList';
 import PriceGraph from './components/PriceGraph';
 import { searchFlights, transformFlightOffer } from '@/lib/amadeus';
+
+const defaultFilters = { stops: 'any', airlines: [], priceMax: null, durationMax: null };
+
+function applyFilters(flights, filters) {
+  if (!flights?.length) return [];
+  const { stops, airlines, priceMax, durationMax } = filters || defaultFilters;
+  return flights.filter((f) => {
+    if (stops !== 'any') {
+      const totalStops = f.totalStops ?? (f.isNonstop ? 0 : 1);
+      if (stops === 'nonstop' && totalStops !== 0) return false;
+      if (stops === '1' && totalStops > 1) return false;
+      if (stops === '2' && totalStops > 2) return false;
+    }
+    if (airlines?.length > 0 && !airlines.includes(f.airlineCode)) return false;
+    if (priceMax != null && (f.price == null || f.price > priceMax)) return false;
+    if (durationMax != null && (f.durationMinutes == null || f.durationMinutes > durationMax)) return false;
+    return true;
+  });
+}
 
 const darkTheme = createTheme({
   palette: {
@@ -53,6 +73,9 @@ export default function FlightSearch() {
   const [loading, setLoading] = useState(false);
   const [flights, setFlights] = useState([]);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState(defaultFilters);
+
+  const filteredFlights = useMemo(() => applyFilters(flights, filters), [flights, filters]);
 
   useEffect(() => {
     const handleSearch = async () => {
@@ -119,6 +142,11 @@ export default function FlightSearch() {
                 onDepartureDateChange={setDepartureDate}
                 onSwap={handleSwap}
               />
+              <FilterBar
+                flights={flights}
+                filters={filters}
+                onFiltersChange={setFilters}
+              />
             </Box>
           </Container>
         </Paper>
@@ -141,7 +169,7 @@ export default function FlightSearch() {
 
           <Grid container spacing={3} sx={{ width: '100%' }}>
             <Grid item size={{ xs: 12, md: 7 }} sx={{ minWidth: 0 }}>
-              <FlightList flights={flights} loading={loading} />
+              <FlightList flights={filteredFlights} loading={loading} />
             </Grid>
             <Grid item size={{ xs: 12, md: 5 }} sx={{ minWidth: 0 }}>
               <Box
@@ -151,7 +179,7 @@ export default function FlightSearch() {
                   top: { md: 24 },
                 }}
               >
-                <PriceGraph flights={flights} loading={loading}/>
+                <PriceGraph flights={filteredFlights} loading={loading} />
               </Box>
             </Grid>
           </Grid>

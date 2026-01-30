@@ -123,13 +123,13 @@ export default function PriceGraph({ flights, loading }) {
             display="block" 
             sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 0.2 }}
           >
-            Time: {data.time}
+            Time: {data.date}
           </Typography>
           <Typography 
             variant="body2" 
             fontWeight="500"
           >
-            Price, ${data.price.toLocaleString()}
+            Price: ${data.price.toLocaleString()}
           </Typography>
           
           {/* Keeping your logic for the 'Best Price' badge if needed */}
