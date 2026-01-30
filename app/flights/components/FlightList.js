@@ -27,26 +27,30 @@ export default function FlightList({ flights = [], loading = false }) {
           key={flight.id}
           elevation={0}
           sx={{
-            p: 3,
+            p: { xs: 2, md: 3 },
             borderRadius: 2,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             transition: 'all 0.2s ease',
             cursor: 'pointer',
+            overflow: 'hidden',
             '&:hover': {
               backgroundColor: 'rgba(255, 255, 255, 0.05)',
               borderColor: 'rgba(33, 150, 243, 0.5)',
-              transform: 'translateY(-2px)',
+              transform: { xs: 'none', md: 'translateY(-2px)' },
             },
           }}
         >
           <Box
             sx={{
               display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
               justifyContent: 'space-between',
-              alignItems: 'center',
+              alignItems: { xs: 'stretch', md: 'center' },
+              gap: { xs: 2, md: 0 },
+              minWidth: 0,
             }}
           >
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
                 variant="subtitle2"
                 color="text.secondary"
@@ -58,24 +62,26 @@ export default function FlightList({ flights = [], loading = false }) {
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 2,
+                  gap: { xs: 1, sm: 2 },
+                  minWidth: 0,
                 }}
               >
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                <Box sx={{ minWidth: 0, flexShrink: 0 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                     {formatTime(flight.departureTime)}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" noWrap>
                     {flight.origin}
                   </Typography>
                 </Box>
                 <Box
                   sx={{
                     flex: 1,
+                    minWidth: 0,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    mx: 2,
+                    mx: { xs: 1, sm: 2 },
                   }}
                 >
                   <Typography
@@ -118,11 +124,11 @@ export default function FlightList({ flights = [], loading = false }) {
                     />
                   )}
                 </Box>
-                <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                <Box sx={{ textAlign: 'right', minWidth: 0, flexShrink: 0 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                     {formatTime(flight.arrivalTime)}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" noWrap>
                     {flight.destination}
                   </Typography>
                 </Box>
@@ -130,24 +136,26 @@ export default function FlightList({ flights = [], loading = false }) {
             </Box>
             <Box
               sx={{
-                ml: 4,
-                textAlign: 'right',
-                pl: 4,
-                borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                pt: { xs: 2, md: 0 },
+                borderTop: { xs: '1px solid rgba(255, 255, 255, 0.1)', md: 'none' },
+                borderLeft: { xs: 'none', md: '1px solid rgba(255, 255, 255, 0.1)' },
+                pl: { xs: 0, md: 4 },
+                ml: { xs: 0, md: 4 },
               }}
             >
               <Typography
-                variant="h4"
+                variant="h5"
                 sx={{
                   fontWeight: 700,
                   color: 'primary.main',
+                  fontSize: { xs: '1.25rem', md: '1.5rem' },
                 }}
               >
                 {getCurrencySymbol(flight.currency)}{flight.price.toFixed(2)}
               </Typography>
-              {/* <Typography variant="caption" color="text.secondary">
-                per person
-              </Typography> */}
             </Box>
           </Box>
         </Paper>

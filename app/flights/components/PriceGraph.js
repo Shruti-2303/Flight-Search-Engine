@@ -176,31 +176,28 @@ export default function PriceGraph({ flights, loading }) {
     );
   }
 
-  // Empty state
+  // Empty state (styled like EmptyState component)
   if (priceData.length === 0) {
     return (
       <Paper
         elevation={0}
         sx={{
           width: '100%',
-          p: 3,
-          bgcolor: '#121212',
-          borderRadius: 4,
-          color: '#fff',
+          p: 6,
+          textAlign: 'center',
+          borderRadius: 2,
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          minHeight: 320,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          minHeight={400}
-        >
-          <ShowChartIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
-          <Typography variant="body1" color="text.secondary">
-            Search for flights to see price trends
-          </Typography>
-        </Box>
+        <ShowChartIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+        <Typography variant="h6" color="text.secondary">
+          Search for flights to see price trends
+        </Typography>
       </Paper>
     );
   }

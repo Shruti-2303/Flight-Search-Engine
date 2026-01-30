@@ -38,9 +38,10 @@ function formatCityName(str) {
     .join(' ');
 }
 
-// Shared input styles
+// Shared input styles (responsive: full width on mobile)
 const inputStyle = {
-  width: 325,
+  width: { xs: '100%', md: 325 },
+  minWidth: 0,
   '& .MuiOutlinedInput-root': {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' },
@@ -49,7 +50,8 @@ const inputStyle = {
 };
 
 const dateStyle = {
-  width: 350,
+  width: { xs: '100%', md: 350 },
+  minWidth: 0,
   '& .MuiOutlinedInput-root': {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' },
@@ -57,9 +59,9 @@ const dateStyle = {
   },
 };
 
-
 const tripTypeSelectStyle = {
-  minWidth: 140,
+  width: { xs: '100%', md: 'auto' },
+  minWidth: { xs: '100%', md: 140 },
   '& .MuiOutlinedInput-root': {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     height: 56,
@@ -74,7 +76,8 @@ const inputBorderColor = 'rgba(255, 255, 255, 0.23)';
 const inputBorderColorHover = 'rgba(255, 255, 255, 0.87)';
 
 const adultsTriggerSx = {
-  minWidth: 80,
+  width: { xs: '100%', md: 'auto' },
+  minWidth: { xs: '100%', md: 80 },
   height: 56,
   minHeight: 56,
   border: `1px solid ${inputBorderColor}`,
@@ -83,6 +86,7 @@ const adultsTriggerSx = {
   textTransform: 'none',
   py: 0,
   px: 2,
+  justifyContent: 'center',
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderColor: inputBorderColorHover,
@@ -313,13 +317,21 @@ export default function SearchForm({
     <Paper
       elevation={0}
       sx={{
-        p: 3,
+        p: { xs: 2, md: 3 },
         mb: 4,
         borderRadius: 2,
         border: '1px solid rgba(255, 255, 255, 0.1)',
+        overflow: 'hidden',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'stretch', md: 'center' },
+          gap: 2,
+        }}
+      >
         <Autocomplete
           value={originValue}
           inputValue={originInput}
@@ -385,6 +397,8 @@ export default function SearchForm({
         <IconButton
           onClick={onSwap}
           sx={{
+            alignSelf: { xs: 'center', md: 'auto' },
+            flexShrink: 0,
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
@@ -524,9 +538,8 @@ export default function SearchForm({
           endIcon={passengersPopoverAnchor ? <ChevronUpIcon /> : <ChevronDownIcon />}
           sx={{
             ...adultsTriggerSx,
-            minWidth: 80,
             ...(passengersPopoverAnchor
-              ? { borderColor: 'primary.main', backgroundColor: 'rgba(33, 150, 243, 0.08)' }
+              ? { borderColor: 'primary.main', borderWidth: '2px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }
               : {}),
           }}
         >

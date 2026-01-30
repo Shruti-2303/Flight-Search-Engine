@@ -210,10 +210,12 @@ export default function FlightSearch() {
           )}
 
           <Grid container spacing={3} sx={{ width: '100%' }}>
-            <Grid item size={{ xs: 12, md: 7 }} sx={{ minWidth: 0 }}>
+            {/* Mobile: PriceGraph first (order 1). Desktop: left column (order 1). */}
+            <Grid item size={{ xs: 12, md: 7 }} sx={{ minWidth: 0, order: { xs: 2, md: 1 } }}>
               <FlightList flights={filteredFlights} loading={loading} />
             </Grid>
-            <Grid item size={{ xs: 12, md: 5 }} sx={{ minWidth: 0 }}>
+            {/* Mobile: PriceGraph first (order 1). Desktop: right column (order 2). */}
+            <Grid item size={{ xs: 12, md: 5 }} sx={{ minWidth: 0, order: { xs: 1, md: 2 } }}>
               <Box
                 sx={{
                   width: '100%',

@@ -13,6 +13,11 @@ export default function EmptyState() {
         textAlign: 'center',
         borderRadius: 2,
         border: '1px solid rgba(255, 255, 255, 0.1)',
+        minHeight: 320,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
       <Flight
