@@ -145,9 +145,9 @@ export default function FlightList({ flights = [], loading = false }) {
               >
                 {getCurrencySymbol(flight.currency)}{flight.price.toFixed(2)}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              {/* <Typography variant="caption" color="text.secondary">
                 per person
-              </Typography>
+              </Typography> */}
             </Box>
           </Box>
         </Paper>

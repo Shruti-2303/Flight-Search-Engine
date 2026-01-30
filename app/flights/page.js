@@ -70,6 +70,7 @@ export default function FlightSearch() {
   const [departureDate, setDepartureDate] = useState(
     new Date().toISOString().split('T')[0]
   );
+  const [adults, setAdults] = useState(1);
   const [loading, setLoading] = useState(false);
   const [flights, setFlights] = useState([]);
   const [error, setError] = useState(null);
@@ -89,7 +90,7 @@ export default function FlightSearch() {
       setError(null);
 
       try {
-        const { offers, dictionaries } = await searchFlights(origin, destination, departureDate);
+        const { offers, dictionaries } = await searchFlights(origin, destination, departureDate, adults);
         const transformedFlights = offers
           .map((offer) => transformFlightOffer(offer, dictionaries))
           .filter((flight) => flight !== null);
@@ -105,7 +106,7 @@ export default function FlightSearch() {
     };
 
     handleSearch();
-  }, [origin, destination, departureDate]);
+  }, [origin, destination, departureDate, adults]);
 
   const handleSwap = () => {
     const temp = origin;
@@ -137,9 +138,11 @@ export default function FlightSearch() {
                 origin={origin}
                 destination={destination}
                 departureDate={departureDate}
+                adults={adults}
                 onOriginChange={setOrigin}
                 onDestinationChange={setDestination}
                 onDepartureDateChange={setDepartureDate}
+                onAdultsChange={setAdults}
                 onSwap={handleSwap}
               />
               <FilterBar

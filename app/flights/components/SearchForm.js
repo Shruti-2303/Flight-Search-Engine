@@ -5,16 +5,24 @@ import {
   Box,
   Paper,
   TextField,
+  Typography,
   IconButton,
   InputAdornment,
   Autocomplete,
   CircularProgress,
+  Button,
+  Popover,
 } from '@mui/material';
 import {
   SwapHoriz,
   FlightTakeoff,
   FlightLand,
   CalendarMonth,
+  PersonOutline as PersonIcon,
+  KeyboardArrowDown as ChevronDownIcon,
+  KeyboardArrowUp as ChevronUpIcon,
+  Remove as MinusIcon,
+  Add as PlusIcon,
 } from '@mui/icons-material';
 import { searchLocations } from '@/lib/amadeus';
 
@@ -46,6 +54,25 @@ const dateStyle = {
   },
 };
 
+const adultsTriggerSx = {
+  minWidth: 100,
+  border: '1px solid rgba(255, 255, 255, 0.2)',
+  borderRadius: 2,
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  color: 'text.primary',
+  textTransform: 'none',
+  py: 1.5,
+  px: 2,
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  '&.Mui-focused': {
+    borderColor: 'primary.main',
+    backgroundColor: 'rgba(33, 150, 243, 0.08)',
+  },
+};
+
 // Debounce hook: only update debounced value after delay
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -60,9 +87,11 @@ export default function SearchForm({
   origin,
   destination,
   departureDate,
+  adults = 1,
   onOriginChange,
   onDestinationChange,
   onDepartureDateChange,
+  onAdultsChange,
   onSwap,
 }) {
   const [originInput, setOriginInput] = useState('');
@@ -71,6 +100,8 @@ export default function SearchForm({
   const [destinationOptions, setDestinationOptions] = useState([]);
   const [originLoading, setOriginLoading] = useState(false);
   const [destinationLoading, setDestinationLoading] = useState(false);
+  const [adultsPopoverAnchor, setAdultsPopoverAnchor] = useState(null);
+  const [draftAdults, setDraftAdults] = useState(1);
 
   const debouncedOriginInput = useDebounce(originInput, 400);
   const debouncedDestinationInput = useDebounce(destinationInput, 400);
@@ -366,6 +397,96 @@ export default function SearchForm({
             ),
           }}
         />
+
+        <Button
+          variant="outlined"
+          onClick={(e) => {
+            setAdultsPopoverAnchor(e.currentTarget);
+            setDraftAdults(adults);
+          }}
+          endIcon={adultsPopoverAnchor ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          sx={{
+            ...adultsTriggerSx,
+            ...(adultsPopoverAnchor
+              ? { borderColor: 'primary.main', backgroundColor: 'rgba(33, 150, 243, 0.08)' }
+              : {}),
+          }}
+        >
+          <PersonIcon sx={{ color: 'text.secondary', fontSize: 22, mr: 1 }} />
+          {adults}
+        </Button>
+
+        <Popover
+          open={Boolean(adultsPopoverAnchor)}
+          anchorEl={adultsPopoverAnchor}
+          onClose={() => setAdultsPopoverAnchor(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+          slotProps={{
+            paper: {
+              sx: {
+                p: 2,
+                backgroundColor: '#1a1a1a',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: 2,
+                minWidth: 260,
+              },
+            },
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              Adults
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <IconButton
+                size="small"
+                onClick={() => setDraftAdults((n) => Math.max(1, n - 1))}
+                sx={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  color: 'text.primary',
+                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.12)' },
+                }}
+              >
+                <MinusIcon fontSize="small" />
+              </IconButton>
+              <Typography variant="body1" sx={{ minWidth: 28, textAlign: 'center', fontWeight: 600 }}>
+                {draftAdults}
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => setDraftAdults((n) => Math.min(9, n + 1))}
+                sx={{
+                  backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                  color: 'primary.main',
+                  '&:hover': { backgroundColor: 'rgba(33, 150, 243, 0.3)' },
+                }}
+              >
+                <PlusIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            <Button
+              size="small"
+              onClick={() => setAdultsPopoverAnchor(null)}
+              sx={{ color: 'text.secondary', textTransform: 'none' }}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => {
+                onAdultsChange?.(draftAdults);
+                setAdultsPopoverAnchor(null);
+              }}
+              sx={{ textTransform: 'none' }}
+            >
+              Done
+            </Button>
+          </Box>
+        </Popover>
       </Box>
     </Paper>
   );
