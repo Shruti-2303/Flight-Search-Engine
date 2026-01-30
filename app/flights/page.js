@@ -73,6 +73,9 @@ export default function FlightSearch() {
   const [returnDate, setReturnDate] = useState('');
   const [tripType, setTripType] = useState('oneWay');
   const [adults, setAdults] = useState(1);
+  const [children, setChildren] = useState(0);
+  const [infantsInSeat, setInfantsInSeat] = useState(0);
+  const [infantsOnLap, setInfantsOnLap] = useState(0);
   const [loading, setLoading] = useState(false);
   const [flights, setFlights] = useState([]);
   const [error, setError] = useState(null);
@@ -110,7 +113,7 @@ export default function FlightSearch() {
           origin,
           destination,
           departureDate,
-          adults,
+          { adults, children, infantsInSeat, infantsOnLap },
           effectiveReturnDate
         );
         const transformedFlights = offers
@@ -128,12 +131,19 @@ export default function FlightSearch() {
     };
 
     handleSearch();
-  }, [origin, destination, departureDate, returnDate, tripType, adults]);
+  }, [origin, destination, departureDate, returnDate, tripType, adults, children, infantsInSeat, infantsOnLap]);
 
   const handleSwap = () => {
     const temp = origin;
     setOrigin(destination);
     setDestination(temp);
+  };
+
+  const handlePassengersChange = ({ adults: a, children: c, infantsInSeat: iSeat, infantsOnLap: iLap }) => {
+    setAdults(a);
+    setChildren(c);
+    setInfantsInSeat(iSeat);
+    setInfantsOnLap(iLap);
   };
 
   return (
@@ -163,12 +173,15 @@ export default function FlightSearch() {
                 returnDate={returnDate}
                 tripType={tripType}
                 adults={adults}
+                children={children}
+                infantsInSeat={infantsInSeat}
+                infantsOnLap={infantsOnLap}
                 onOriginChange={setOrigin}
                 onDestinationChange={setDestination}
                 onDepartureDateChange={setDepartureDate}
                 onReturnDateChange={setReturnDate}
                 onTripTypeChange={handleTripTypeChange}
-                onAdultsChange={setAdults}
+                onPassengersChange={handlePassengersChange}
                 onSwap={handleSwap}
               />
               <FilterBar

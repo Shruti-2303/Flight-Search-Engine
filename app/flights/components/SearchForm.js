@@ -85,6 +85,50 @@ const adultsTriggerSx = {
   },
 };
 
+function PassengerRow({ label, subtitle, value, onMinus, onPlus }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+      <Box>
+        <Typography variant="body2" color="text.primary">
+          {label}
+        </Typography>
+        {subtitle && (
+          <Typography variant="caption" color="text.secondary">
+            {subtitle}
+          </Typography>
+        )}
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <IconButton
+          size="small"
+          onClick={onMinus}
+          sx={{
+            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+            color: 'text.primary',
+            '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.12)' },
+          }}
+        >
+          <MinusIcon fontSize="small" />
+        </IconButton>
+        <Typography variant="body1" sx={{ minWidth: 28, textAlign: 'center', fontWeight: 600 }}>
+          {value}
+        </Typography>
+        <IconButton
+          size="small"
+          onClick={onPlus}
+          sx={{
+            backgroundColor: 'rgba(33, 150, 243, 0.2)',
+            color: 'primary.main',
+            '&:hover': { backgroundColor: 'rgba(33, 150, 243, 0.3)' },
+          }}
+        >
+          <PlusIcon fontSize="small" />
+        </IconButton>
+      </Box>
+    </Box>
+  );
+}
+
 // Debounce hook: only update debounced value after delay
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -102,12 +146,15 @@ export default function SearchForm({
   returnDate,
   tripType = 'oneWay',
   adults = 1,
+  children = 0,
+  infantsInSeat = 0,
+  infantsOnLap = 0,
   onOriginChange,
   onDestinationChange,
   onDepartureDateChange,
   onReturnDateChange,
   onTripTypeChange,
-  onAdultsChange,
+  onPassengersChange,
   onSwap,
 }) {
   const [originInput, setOriginInput] = useState('');
@@ -116,8 +163,11 @@ export default function SearchForm({
   const [destinationOptions, setDestinationOptions] = useState([]);
   const [originLoading, setOriginLoading] = useState(false);
   const [destinationLoading, setDestinationLoading] = useState(false);
-  const [adultsPopoverAnchor, setAdultsPopoverAnchor] = useState(null);
+  const [passengersPopoverAnchor, setPassengersPopoverAnchor] = useState(null);
   const [draftAdults, setDraftAdults] = useState(1);
+  const [draftChildren, setDraftChildren] = useState(0);
+  const [draftInfantsInSeat, setDraftInfantsInSeat] = useState(0);
+  const [draftInfantsOnLap, setDraftInfantsOnLap] = useState(0);
 
   const debouncedOriginInput = useDebounce(originInput, 400);
   const debouncedDestinationInput = useDebounce(destinationInput, 400);
@@ -456,25 +506,29 @@ export default function SearchForm({
         <Button
           variant="outlined"
           onClick={(e) => {
-            setAdultsPopoverAnchor(e.currentTarget);
+            setPassengersPopoverAnchor(e.currentTarget);
             setDraftAdults(adults);
+            setDraftChildren(children);
+            setDraftInfantsInSeat(infantsInSeat);
+            setDraftInfantsOnLap(infantsOnLap);
           }}
-          endIcon={adultsPopoverAnchor ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          endIcon={passengersPopoverAnchor ? <ChevronUpIcon /> : <ChevronDownIcon />}
           sx={{
             ...adultsTriggerSx,
-            ...(adultsPopoverAnchor
+            minWidth: 80,
+            ...(passengersPopoverAnchor
               ? { borderColor: 'primary.main', backgroundColor: 'rgba(33, 150, 243, 0.08)' }
               : {}),
           }}
         >
           <PersonIcon sx={{ color: 'text.secondary', fontSize: 22, mr: 1 }} />
-          {adults}
+          {adults + children + infantsInSeat + infantsOnLap}
         </Button>
 
         <Popover
-          open={Boolean(adultsPopoverAnchor)}
-          anchorEl={adultsPopoverAnchor}
-          onClose={() => setAdultsPopoverAnchor(null)}
+          open={Boolean(passengersPopoverAnchor)}
+          anchorEl={passengersPopoverAnchor}
+          onClose={() => setPassengersPopoverAnchor(null)}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
           transformOrigin={{ vertical: 'top', horizontal: 'left' }}
           slotProps={{
@@ -484,47 +538,42 @@ export default function SearchForm({
                 backgroundColor: '#1a1a1a',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: 2,
-                minWidth: 260,
+                minWidth: 280,
               },
             },
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              Adults
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <IconButton
-                size="small"
-                onClick={() => setDraftAdults((n) => Math.max(1, n - 1))}
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                  color: 'text.primary',
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.12)' },
-                }}
-              >
-                <MinusIcon fontSize="small" />
-              </IconButton>
-              <Typography variant="body1" sx={{ minWidth: 28, textAlign: 'center', fontWeight: 600 }}>
-                {draftAdults}
-              </Typography>
-              <IconButton
-                size="small"
-                onClick={() => setDraftAdults((n) => Math.min(9, n + 1))}
-                sx={{
-                  backgroundColor: 'rgba(33, 150, 243, 0.2)',
-                  color: 'primary.main',
-                  '&:hover': { backgroundColor: 'rgba(33, 150, 243, 0.3)' },
-                }}
-              >
-                <PlusIcon fontSize="small" />
-              </IconButton>
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+          <PassengerRow
+            label="Adults"
+            value={draftAdults}
+            onMinus={() => setDraftAdults((n) => Math.max(1, n - 1))}
+            onPlus={() => setDraftAdults((n) => Math.min(9, n + 1))}
+          />
+          <PassengerRow
+            label="Children"
+            subtitle="Aged 2-11"
+            value={draftChildren}
+            onMinus={() => setDraftChildren((n) => Math.max(0, n - 1))}
+            onPlus={() => setDraftChildren((n) => Math.min(9, n + 1))}
+          />
+          <PassengerRow
+            label="Infants"
+            subtitle="In seat"
+            value={draftInfantsInSeat}
+            onMinus={() => setDraftInfantsInSeat((n) => Math.max(0, n - 1))}
+            onPlus={() => setDraftInfantsInSeat((n) => Math.min(9, n + 1))}
+          />
+          <PassengerRow
+            label="Infants"
+            subtitle="On lap"
+            value={draftInfantsOnLap}
+            onMinus={() => setDraftInfantsOnLap((n) => Math.max(0, n - 1))}
+            onPlus={() => setDraftInfantsOnLap((n) => Math.min(9, n + 1))}
+          />
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
             <Button
               size="small"
-              onClick={() => setAdultsPopoverAnchor(null)}
+              onClick={() => setPassengersPopoverAnchor(null)}
               sx={{ color: 'text.secondary', textTransform: 'none' }}
             >
               Cancel
@@ -533,8 +582,13 @@ export default function SearchForm({
               size="small"
               variant="contained"
               onClick={() => {
-                onAdultsChange?.(draftAdults);
-                setAdultsPopoverAnchor(null);
+                onPassengersChange?.({
+                  adults: draftAdults,
+                  children: draftChildren,
+                  infantsInSeat: draftInfantsInSeat,
+                  infantsOnLap: draftInfantsOnLap,
+                });
+                setPassengersPopoverAnchor(null);
               }}
               sx={{ textTransform: 'none' }}
             >
