@@ -70,6 +70,8 @@ export default function FlightSearch() {
   const [departureDate, setDepartureDate] = useState(
     new Date().toISOString().split('T')[0]
   );
+  const [returnDate, setReturnDate] = useState('');
+  const [tripType, setTripType] = useState('oneWay');
   const [adults, setAdults] = useState(1);
   const [loading, setLoading] = useState(false);
   const [flights, setFlights] = useState([]);
@@ -78,9 +80,22 @@ export default function FlightSearch() {
 
   const filteredFlights = useMemo(() => applyFilters(flights, filters), [flights, filters]);
 
+  // When switching to round trip, default return date to departure date
+  const handleTripTypeChange = (newTripType) => {
+    setTripType(newTripType);
+    if (newTripType === 'roundTrip' && !returnDate) {
+      setReturnDate(departureDate);
+    }
+  };
+
   useEffect(() => {
     const handleSearch = async () => {
       if (!origin || !destination || !departureDate) {
+        setFlights([]);
+        setError(null);
+        return;
+      }
+      if (tripType === 'roundTrip' && !returnDate) {
         setFlights([]);
         setError(null);
         return;
@@ -90,7 +105,14 @@ export default function FlightSearch() {
       setError(null);
 
       try {
-        const { offers, dictionaries } = await searchFlights(origin, destination, departureDate, adults);
+        const effectiveReturnDate = tripType === 'roundTrip' ? (returnDate || departureDate) : undefined;
+        const { offers, dictionaries } = await searchFlights(
+          origin,
+          destination,
+          departureDate,
+          adults,
+          effectiveReturnDate
+        );
         const transformedFlights = offers
           .map((offer) => transformFlightOffer(offer, dictionaries))
           .filter((flight) => flight !== null);
@@ -106,7 +128,7 @@ export default function FlightSearch() {
     };
 
     handleSearch();
-  }, [origin, destination, departureDate, adults]);
+  }, [origin, destination, departureDate, returnDate, tripType, adults]);
 
   const handleSwap = () => {
     const temp = origin;
@@ -138,10 +160,14 @@ export default function FlightSearch() {
                 origin={origin}
                 destination={destination}
                 departureDate={departureDate}
+                returnDate={returnDate}
+                tripType={tripType}
                 adults={adults}
                 onOriginChange={setOrigin}
                 onDestinationChange={setDestination}
                 onDepartureDateChange={setDepartureDate}
+                onReturnDateChange={setReturnDate}
+                onTripTypeChange={handleTripTypeChange}
                 onAdultsChange={setAdults}
                 onSwap={handleSwap}
               />

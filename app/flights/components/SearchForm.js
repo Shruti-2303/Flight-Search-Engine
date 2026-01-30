@@ -12,6 +12,9 @@ import {
   CircularProgress,
   Button,
   Popover,
+  FormControl,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import {
   SwapHoriz,
@@ -54,6 +57,15 @@ const dateStyle = {
   },
 };
 
+const tripTypeSelectStyle = {
+  minWidth: 140,
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' },
+    '&.Mui-focused': { backgroundColor: 'rgba(255, 255, 255, 0.08)' },
+  },
+};
+
 const adultsTriggerSx = {
   minWidth: 100,
   border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -87,10 +99,14 @@ export default function SearchForm({
   origin,
   destination,
   departureDate,
+  returnDate,
+  tripType = 'oneWay',
   adults = 1,
   onOriginChange,
   onDestinationChange,
   onDepartureDateChange,
+  onReturnDateChange,
+  onTripTypeChange,
   onAdultsChange,
   onSwap,
 }) {
@@ -380,6 +396,24 @@ export default function SearchForm({
           }}
         />
 
+        <FormControl variant="outlined" sx={tripTypeSelectStyle} size="medium">
+          <Select
+            value={tripType}
+            onChange={(e) => onTripTypeChange?.(e.target.value)}
+            displayEmpty
+            renderValue={(v) => (v === 'roundTrip' ? 'Round trip' : 'One way')}
+            sx={{
+              color: 'text.primary',
+              '& .MuiSelect-select': { py: 1.5 },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.2)' },
+              '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+            }}
+          >
+            <MenuItem value="oneWay">One way</MenuItem>
+            <MenuItem value="roundTrip">Round trip</MenuItem>
+          </Select>
+        </FormControl>
+
         <TextField
           type="date"
           value={departureDate}
@@ -397,6 +431,27 @@ export default function SearchForm({
             ),
           }}
         />
+
+        {tripType === 'roundTrip' && (
+          <TextField
+            type="date"
+            label="Return"
+            value={returnDate ?? ''}
+            onChange={(e) => onReturnDateChange?.(e.target.value)}
+            variant="outlined"
+            sx={dateStyle}
+            inputProps={{
+              min: departureDate || new Date().toISOString().split('T')[0],
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CalendarMonth sx={{ color: 'text.secondary' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        )}
 
         <Button
           variant="outlined"
