@@ -10,6 +10,7 @@ import {
   createTheme,
   CssBaseline,
 } from '@mui/material';
+import Header from './components/Header';
 import SearchForm from './components/SearchForm';
 import FilterBar from './components/FilterBar';
 import FlightList from './components/FlightList';
@@ -166,6 +167,7 @@ export default function FlightSearch() {
         >
           <Container maxWidth="lg">
             <Box py={3}>
+              <Header />
               <SearchForm
                 origin={origin}
                 destination={destination}
