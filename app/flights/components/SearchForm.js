@@ -186,26 +186,27 @@ export default function SearchForm({
   const debouncedDestinationInput = useDebounce(destinationInput, 400);
 
   // Get the selected option object for origin (for Autocomplete value)
+  const originIata = origin?.iataCode;
+  const destinationIata = destination?.iataCode;
   const originSelectedOption =
-    origin && originOptions.find((o) => o.iataCode === origin)
-      ? originOptions.find((o) => o.iataCode === origin)
+    originIata && originOptions.find((o) => o.iataCode === originIata)
+      ? originOptions.find((o) => o.iataCode === originIata)
       : origin
-        ? { iataCode: origin, cityName: origin }
+        ? { iataCode: origin.iataCode, label: origin.label, cityName: origin.label || origin.iataCode, countryCode: origin.countryCode }
         : null;
 
   const destinationSelectedOption =
-    destination && destinationOptions.find((o) => o.iataCode === destination)
-      ? destinationOptions.find((o) => o.iataCode === destination)
+    destinationIata && destinationOptions.find((o) => o.iataCode === destinationIata)
+      ? destinationOptions.find((o) => o.iataCode === destinationIata)
       : destination
-        ? { iataCode: destination, cityName: destination }
+        ? { iataCode: destination.iataCode, label: destination.label, cityName: destination.label || destination.iataCode, countryCode: destination.countryCode }
         : null;
 
-  // Label for dropdown options and display: only city name
+  // Label for dropdown options and display: city name or label
   function getOptionLabel(option) {
     if (!option) return '';
-    if (option.cityName && option.cityName !== option.iataCode) {
-      return formatCityName(option.cityName);
-    }
+    const name = option.label ?? option.cityName;
+    if (name && name !== option.iataCode) return formatCityName(name);
     return option.iataCode || '';
   }
 
@@ -222,40 +223,35 @@ export default function SearchForm({
 
   // Only sync input text when origin/destination *prop* changes (e.g. swap). Never overwrite while user is typing.
   useEffect(() => {
-    if (origin) {
-      setOriginInput(getOptionLabel(originSelectedOption));
-    }
+    if (origin) setOriginInput(getOptionLabel(originSelectedOption));
   }, [origin]);
 
   useEffect(() => {
-    if (destination) {
-      setDestinationInput(getOptionLabel(destinationSelectedOption));
-    }
+    if (destination) setDestinationInput(getOptionLabel(destinationSelectedOption));
   }, [destination]);
 
-  // When options load for current origin/destination, update display from "Del" to "Delhi" only if input still shows the code
+  // When options load for current origin/destination, update display from code to city name if needed
   useEffect(() => {
-    const option = originOptions.find((o) => o.iataCode === origin);
-    if (option && option.cityName !== option.iataCode) {
-      const fallbackLabel = formatCityName(origin);
-      if (originInput === fallbackLabel || originInput === origin) {
-        setOriginInput(formatCityName(option.cityName));
+    const option = originOptions.find((o) => o.iataCode === originIata);
+    if (option && (option.label || option.cityName) !== option.iataCode) {
+      const fallbackLabel = origin?.label || formatCityName(originIata);
+      if (originInput === fallbackLabel || originInput === originIata) {
+        setOriginInput(formatCityName(option.label || option.cityName));
       }
     }
-  }, [originOptions, origin]);
+  }, [originOptions, origin, originIata]);
 
   useEffect(() => {
-    const option = destinationOptions.find((o) => o.iataCode === destination);
-    if (option && option.cityName !== option.iataCode) {
-      const fallbackLabel = formatCityName(destination);
-      if (destinationInput === fallbackLabel || destinationInput === destination) {
-        setDestinationInput(formatCityName(option.cityName));
+    const option = destinationOptions.find((o) => o.iataCode === destinationIata);
+    if (option && (option.label || option.cityName) !== option.iataCode) {
+      const fallbackLabel = destination?.label || formatCityName(destinationIata);
+      if (destinationInput === fallbackLabel || destinationInput === destinationIata) {
+        setDestinationInput(formatCityName(option.label || option.cityName));
       }
     }
-  }, [destinationOptions, destination]);
+  }, [destinationOptions, destination, destinationIata]);
 
   // Load options only when user is actually typing a search (not when input shows the current selection label).
-  // Skip fetch when input matches current selection (e.g. "Delhi" after we synced it) to avoid extra API calls.
   useEffect(() => {
     if (debouncedOriginInput.length < 2) return;
     const selectionLabel = origin ? getOptionLabel(originSelectedOption) : '';
@@ -288,30 +284,30 @@ export default function SearchForm({
     return () => { cancelled = true; };
   }, [debouncedDestinationInput]);
 
-  // Load initial options only when we don't already have this option (avoids duplicate call after user typed and selected).
+  // Load initial options when we have origin/destination object but option not in list yet
   useEffect(() => {
-    if (!origin || origin.length < 2) return;
-    if (originOptions.some((o) => o.iataCode === origin)) return;
-    searchLocations(origin, 5).then((data) => {
+    if (!originIata || originIata.length < 2) return;
+    if (originOptions.some((o) => o.iataCode === originIata)) return;
+    searchLocations(originIata, 5).then((data) => {
       setOriginOptions((prev) => {
         const map = new Map(prev.map((o) => [o.iataCode, o]));
         data.forEach((o) => map.set(o.iataCode, o));
         return Array.from(map.values());
       });
     });
-  }, [origin]);
+  }, [originIata]);
 
   useEffect(() => {
-    if (!destination || destination.length < 2) return;
-    if (destinationOptions.some((o) => o.iataCode === destination)) return;
-    searchLocations(destination, 5).then((data) => {
+    if (!destinationIata || destinationIata.length < 2) return;
+    if (destinationOptions.some((o) => o.iataCode === destinationIata)) return;
+    searchLocations(destinationIata, 5).then((data) => {
       setDestinationOptions((prev) => {
         const map = new Map(prev.map((o) => [o.iataCode, o]));
         data.forEach((o) => map.set(o.iataCode, o));
         return Array.from(map.values());
       });
     });
-  }, [destination]);
+  }, [destinationIata]);
 
   return (
     <Paper
@@ -338,7 +334,11 @@ export default function SearchForm({
           onInputChange={(_, newValue) => setOriginInput(newValue)}
           onChange={(_, newOption) => {
             if (newOption) {
-              onOriginChange(newOption.iataCode);
+              onOriginChange({
+                label: getOptionLabel(newOption),
+                iataCode: newOption.iataCode,
+                countryCode: newOption.countryCode ?? null,
+              });
               setOriginInput(getOptionLabel(newOption));
             }
           }}
@@ -413,7 +413,11 @@ export default function SearchForm({
           onInputChange={(_, newValue) => setDestinationInput(newValue)}
           onChange={(_, newOption) => {
             if (newOption) {
-              onDestinationChange(newOption.iataCode);
+              onDestinationChange({
+                label: getOptionLabel(newOption),
+                iataCode: newOption.iataCode,
+                countryCode: newOption.countryCode ?? null,
+              });
               setDestinationInput(getOptionLabel(newOption));
             }
           }}

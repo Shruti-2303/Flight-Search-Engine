@@ -12,8 +12,9 @@ function getCurrencySymbol(currency) {
     USD: '$',
     INR: '₹',
     GBP: '£',
+    AED: 'د.إ',
   };
-  return symbols[currency] || currency;
+  return symbols[currency] || (currency || '');
 }
 
 export default function FlightList({ flights = [], loading = false }) {

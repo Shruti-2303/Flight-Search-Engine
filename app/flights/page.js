@@ -15,7 +15,7 @@ import SearchForm from './components/SearchForm';
 import FilterBar from './components/FilterBar';
 import FlightList from './components/FlightList';
 import PriceGraph from './components/PriceGraph';
-import { searchFlights, transformFlightOffer } from '@/lib/amadeus';
+import { searchFlights, transformFlightOffer, getCurrencyByOrigin } from '@/lib/amadeus';
 
 const defaultFilters = { stops: 'any', airlines: [], priceMax: null, durationMax: null };
 
@@ -66,8 +66,8 @@ const darkTheme = createTheme({
 });
 
 export default function FlightSearch() {
-  const [origin, setOrigin] = useState('');
-  const [destination, setDestination] = useState('');
+  const [origin, setOrigin] = useState(null);
+  const [destination, setDestination] = useState(null);
   const [departureDate, setDepartureDate] = useState(
     new Date().toISOString().split('T')[0]
   );
@@ -94,7 +94,7 @@ export default function FlightSearch() {
 
   useEffect(() => {
     const handleSearch = async () => {
-      if (!origin || !destination || !departureDate) {
+      if (!origin?.iataCode || !destination?.iataCode || !departureDate) {
         setFlights([]);
         setError(null);
         return;
@@ -110,12 +110,14 @@ export default function FlightSearch() {
 
       try {
         const effectiveReturnDate = tripType === 'roundTrip' ? (returnDate || departureDate) : undefined;
+        const currencyCode = getCurrencyByOrigin(origin);
         const { offers, dictionaries } = await searchFlights(
           origin,
           destination,
           departureDate,
           { adults, children, infantsInSeat, infantsOnLap },
-          effectiveReturnDate
+          effectiveReturnDate,
+          currencyCode
         );
         const transformedFlights = offers
           .map((offer) => transformFlightOffer(offer, dictionaries))
@@ -135,9 +137,8 @@ export default function FlightSearch() {
   }, [origin, destination, departureDate, returnDate, tripType, adults, children, infantsInSeat, infantsOnLap]);
 
   const handleSwap = () => {
-    const temp = origin;
     setOrigin(destination);
-    setDestination(temp);
+    setDestination(origin);
   };
 
   const handlePassengersChange = ({ adults: a, children: c, infantsInSeat: iSeat, infantsOnLap: iLap }) => {

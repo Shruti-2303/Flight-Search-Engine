@@ -29,8 +29,15 @@ import {
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import FlightIcon from '@mui/icons-material/Flight';
 
+function getCurrencySymbol(currency) {
+  const symbols = { EUR: '€', USD: '$', INR: '₹', GBP: '£', AED: 'د.إ' };
+  return symbols[currency] || (currency || '');
+}
+
 export default function PriceGraph({ flights, loading }) {
   const theme = useTheme();
+  const currency = flights?.[0]?.currency || 'USD';
+  const currencySymbol = getCurrencySymbol(currency);
 
   // Process flight data to create price trend data
   const priceData = useMemo(() => {
@@ -129,7 +136,7 @@ export default function PriceGraph({ flights, loading }) {
             variant="body2" 
             fontWeight="500"
           >
-            Price: ${data.price.toLocaleString()}
+            Price: {currencySymbol}{data.price.toLocaleString()}
           </Typography>
           
           {/* Keeping your logic for the 'Best Price' badge if needed */}
@@ -244,7 +251,7 @@ export default function PriceGraph({ flights, loading }) {
                 Cheapest
               </Typography>
               <Typography variant="h5" fontWeight="700" color="#4caf50">
-                ${stats.cheapest.toLocaleString()}
+                {currencySymbol}{stats.cheapest.toLocaleString()}
               </Typography>
             </Paper>
           </Grid>
@@ -263,7 +270,7 @@ export default function PriceGraph({ flights, loading }) {
                 Average
               </Typography>
               <Typography variant="h5" fontWeight="700" color="primary.main">
-                ${stats.average.toLocaleString()}
+                {currencySymbol}{stats.average.toLocaleString()}
               </Typography>
             </Paper>
           </Grid>
@@ -299,7 +306,7 @@ export default function PriceGraph({ flights, loading }) {
             tickLine={false}
             tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
             domain={[priceRange.min, priceRange.max]}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `${currencySymbol}${value}`}
           />
           <Tooltip content={<CustomTooltip />}
            cursor={false}
@@ -329,7 +336,7 @@ export default function PriceGraph({ flights, loading }) {
       >
         <FlightIcon sx={{ fontSize: 14, color: 'text.secondary', mr: 0.5 }} />
         <Typography variant="caption" color="text.secondary">
-          Prices shown in {flights[0]?.currency || flights[0]?.price?.currency || 'USD'} • Updated live
+          Prices shown in {currency} • Updated live
         </Typography>
       </Box>
     </Paper>
